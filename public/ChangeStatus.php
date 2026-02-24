@@ -12,8 +12,8 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $game_id = $_POST['game_id'] ?? '';
-$status = $_POST['status'] ?? '';
-$rating = $_POST['rating'] ?? null;
+$status = $_POST['status'] ?? 'Backlog';
+$rating = (isset($_POST['rating']) && $_POST['rating'] !== '') ? (int)$_POST['rating'] : null;
 
 
 

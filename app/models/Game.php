@@ -40,10 +40,24 @@ class Game {
         return $stmt->execute([$user_id, $game_id, $status, $rating]);
     }
 
-    public function getGamesByUserId($user_id) {
+    public function getGamesByUserId($user_id, $status = null, $search = null) {
         $sql = "SELECT g.*, ug.status, ug.rating FROM games g JOIN user_games ug ON g.id = ug.game_id WHERE ug.user_id = ?";
+
+        $params = [$user_id];
+
+        if (!empty($search)) {
+            $sql .= " AND g.title LIKE ?";
+            $params[] = '%' . $search . '%';
+        }
+
+        if (!empty($status)) {
+            $sql .= " AND ug.status = ?";
+            $params[] = $status;
+            
+        }
+
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$user_id]);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -72,6 +86,19 @@ class Game {
         $sql = "DELETE FROM user_games WHERE user_id = ? AND game_id = ?";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([$user_id, $game_id]);
+    }
+
+    public function getUserGameInfo($user_id, $game_id) {
+        $sql = "SELECT * FROM user_games WHERE user_id = ? AND game_id = ? LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$user_id, $game_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function updateReview($user_id, $game_id, $review) {
+        $sql = "UPDATE user_games SET review = ? WHERE user_id = ? AND game_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([$review, $user_id, $game_id]);
     }
 
 }

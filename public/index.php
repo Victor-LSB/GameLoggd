@@ -19,20 +19,22 @@ echo "<h1>Bem-vindo, " . $_SESSION['username'] . "!</h1>";
 
 $user_id = $_SESSION['user_id'];
 $game = new Game($conn);
-$userGames = $game->getGamesByUserId($user_id);
+$filter_status = $_GET['filter_status'] ?? '';
+$search_query = $_GET['search'] ?? '';
+$userGames = $game->getGamesByUserId($user_id, $filter_status, $search_query);
 
 
 
 echo "<h2>Meus Jogos</h2>"; ?>
 
-<form action="index.php" method="post">
-    <input type="text" name="search" placeholder="Pesquisar jogos...">
+<form action="index.php" method="GET">
+    <input type="text" name="search" placeholder="Pesquisar jogos..." value="<?php echo htmlspecialchars($search_query); ?>">
     <button type="submit">Pesquisar</button>
 </form>
 <form action ="index.php" method="GET">
     <select name="filter_status" onchange="this.form.submit()">
         <option value="">Filtrar por status</option>
-        <option value="Backlog" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'backlog') echo 'selected'; ?>>Backlog</option>
+        <option value="Backlog" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Backlog') echo 'selected'; ?>>Backlog</option>
         <option value="Jogando" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Jogando') echo 'selected'; ?>>Jogando</option>
         <option value="Completo" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Completo') echo 'selected'; ?>>Completo</option>
         <option value="Dropado" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Dropado') echo 'selected'; ?>>Dropado</option>
@@ -43,7 +45,13 @@ echo "<h2>Meus Jogos</h2>"; ?>
     echo "<ul>";
     foreach ($userGames as $game): ?>
     <div>
-        <h3><?php echo htmlspecialchars($game['title']); ?></h3>
+        <h3>
+            <a 
+                href="Details.php?id=<?php echo $game['id']; ?>">
+                <?php echo htmlspecialchars($game['title']); ?>
+            </a>
+            
+        </h3>
         <?php if (!empty($game['cover_image'])): ?>
             <img src="<?php echo htmlspecialchars($game['cover_image']); ?>" alt="<?php echo htmlspecialchars($game['title']); ?>" style="width:150px;">
         <?php endif; ?>
