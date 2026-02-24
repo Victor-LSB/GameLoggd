@@ -17,17 +17,48 @@ $conn = $db->connect();
 
 echo "<h1>Bem-vindo, " . $_SESSION['username'] . "!</h1>";
 
+$user_id = $_SESSION['user_id'];
 $game = new Game($conn);
-$games = $game->getAllGames();
+$userGames = $game->getGamesByUserId($user_id);
 
 echo "<h2>Meus Jogos</h2>";
-if (count($games) > 0) {
+if (count($userGames) > 0) {
     echo "<ul>";
-    foreach ($games as $game) {
-        echo "<li>" . htmlspecialchars($game['title']) . " - " . htmlspecialchars($game['platform']) . "</li>";
-    }
+    foreach ($userGames as $game): ?>
+    <div>
+        <h3><?php echo htmlspecialchars($game['title']); ?></h3>
+
+        <p>Status: <?php echo htmlspecialchars($game['status']); ?></p>
+
+        <form action="change_status.php" method="post" style="display:inline;">
+            <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
+            <input type="hidden" name="status" value="backlog">
+            <button type="submit">📚 Backlog</button>
+        </form>
+
+        <form action="change_status.php" method="post" style="display:inline;">
+            <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
+            <input type="hidden" name="status" value="playing">
+            <button type="submit">▶️ Jogando</button>
+        </form>
+
+        <form action="change_status.php" method="post" style="display:inline;">
+            <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
+            <input type="hidden" name="status" value="completed">
+            <button type="submit">✅ Completo</button>
+        </form>
+
+        <form action="change_status.php" method="post" style="display:inline;">
+            <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
+            <input type="hidden" name="status" value="dropped">
+            <button type="submit">❌ Dropado</button>
+        </form>
+    </div>
+<?php endforeach;
     echo "</ul>";
 } else {
     echo "<p>Você ainda não adicionou nenhum jogo.</p>";
 }
 ?>
+<a href='Search.php'>Adicionar Jogo</a><br>
+<a href='auth/Logout.php'>Sair</a>

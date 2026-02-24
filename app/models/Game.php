@@ -5,10 +5,10 @@ class Game {
         $this->conn = $db;
     }
 
-    public function addGame($title, $platform, $genre, $release_date, $cover_image) {
-        $sql = "INSERT INTO games (title, platform, genre, release_date, cover_image) VALUES (?, ?, ?, ?, ?)";
+    public function addGame($external_id,$title, $platform, $genre, $release_date, $cover_image) {
+        $sql = "INSERT INTO games (external_id, title, platform, genre, release_date, cover_image) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
-        return $stmt->execute([$title, $platform, $genre, $release_date, $cover_image]);
+        return $stmt->execute([$external_id, $title, $platform, $genre, $release_date, $cover_image]);
     }
 
 
@@ -33,6 +33,41 @@ class Game {
         $stmt->execute(['%' . $title . '%']);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function addGameToUser($user_id, $game_id, $status = 'backlog', $rating = null) {
+        $sql = "INSERT INTO user_games (user_id, game_id, status, rating) VALUES (?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([$user_id, $game_id, $status, $rating]);
+    }
+
+    public function getGamesByUserId($user_id) {
+        $sql = "SELECT g.*, ug.status FROM games g JOIN user_games ug ON g.id = ug.game_id WHERE ug.user_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$user_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function findGameByExternalId($external_id) {
+        $sql = "SELECT id FROM games WHERE external_id = ? LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$external_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } 
+
+    public function checkUserGame($user_id, $game_id) {
+        $sql = "SELECT 1 FROM user_games WHERE user_id = ? AND game_id = ? LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$user_id, $game_id]);
+        return $stmt->fetch() !== false;
+    }
+
+
+    public function updateGameStatus($user_id, $game_id, $status) {
+        $sql = "UPDATE user_games SET status = ? WHERE user_id = ? AND game_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([$status, $user_id, $game_id]);
+    }
+
 }
 
 
