@@ -6,28 +6,28 @@ class GameAPI {
     private $baseUrl = 'https://api.rawg.io/api/games';
 
     public function searchGames($query) {
-        // Usa IP direto para evitar DNS lookup (mais rápido)
+        
         $url = "https://api.rawg.io/api/games?key={$this->apiKey}&search=" . urlencode($query) . "&page_size=20";
         
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, true);
         
-        // Otimizações agressivas
-        curl_setopt($ch, CURLOPT_TIMEOUT, 3); // Timeout muito curto
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2); // Conexão rápida
-        curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate'); // Múltiplas compressões
+       //otimização
+        curl_setopt($ch, CURLOPT_TIMEOUT, 3); 
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2); 
+        curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate'); 
         curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
         curl_setopt($ch, CURLOPT_TCP_NODELAY, true);
-        curl_setopt($ch, CURLOPT_TCP_FASTOPEN, true); // TCP Fast Open
+        curl_setopt($ch, CURLOPT_TCP_FASTOPEN, true); 
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false); // Não segue redirects
-        curl_setopt($ch, CURLOPT_FRESH_CONNECT, false); // Reutiliza conexões
-        curl_setopt($ch, CURLOPT_FORBID_REUSE, false); // Permite reutilização
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 0); // Zero redirects
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false); 
+        curl_setopt($ch, CURLOPT_FRESH_CONNECT, false); 
+        curl_setopt($ch, CURLOPT_FORBID_REUSE, false); 
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 0); 
         
         // Headers otimizados
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
