@@ -1,0 +1,17 @@
+{
+    "name": "victi/game-loggd",
+    "autoload": {
+        "psr-4": {
+            "Victi\\GameLoggd\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Victor-LSB",
+            "email": "victor.8298203@edu.univali.br"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}

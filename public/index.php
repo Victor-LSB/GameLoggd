@@ -21,8 +21,25 @@ $user_id = $_SESSION['user_id'];
 $game = new Game($conn);
 $userGames = $game->getGamesByUserId($user_id);
 
-echo "<h2>Meus Jogos</h2>";
-if (count($userGames) > 0) {
+
+
+echo "<h2>Meus Jogos</h2>"; ?>
+
+<form action="index.php" method="post">
+    <input type="text" name="search" placeholder="Pesquisar jogos...">
+    <button type="submit">Pesquisar</button>
+</form>
+<form action ="index.php" method="GET">
+    <select name="filter_status" onchange="this.form.submit()">
+        <option value="">Filtrar por status</option>
+        <option value="Backlog" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'backlog') echo 'selected'; ?>>Backlog</option>
+        <option value="Jogando" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Jogando') echo 'selected'; ?>>Jogando</option>
+        <option value="Completo" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Completo') echo 'selected'; ?>>Completo</option>
+        <option value="Dropado" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Dropado') echo 'selected'; ?>>Dropado</option>
+    </select>
+</form>
+
+<?php if (count($userGames) > 0) {
     echo "<ul>";
     foreach ($userGames as $game): ?>
     <div>
@@ -34,8 +51,10 @@ if (count($userGames) > 0) {
         <p>Status: <?php echo htmlspecialchars($game['status']); ?></p>
         <p>Avaliação: <?php echo isset($game['rating']) ? htmlspecialchars($game['rating']) : 'Não avaliado'; ?></p>
         
-        <form action="ChangeStatus.php" method="post">
+        <form action="ChangeStatus.php" method="post" style="display:inline;">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($game['status']); ?>">
+            
             <select name="rating" onchange="this.form.submit()">
                 <option value="">Avaliação</option>
                 <option value="1" <?php if (isset($game['rating']) && $game['rating'] == 1) echo 'selected'; ?>>1</option>
@@ -43,23 +62,30 @@ if (count($userGames) > 0) {
                 <option value="3" <?php if (isset($game['rating']) && $game['rating'] == 3) echo 'selected'; ?>>3</option>
                 <option value="4" <?php if (isset($game['rating']) && $game['rating'] == 4) echo 'selected'; ?>>4</option>
                 <option value="5" <?php if (isset($game['rating']) && $game['rating'] == 5) echo 'selected'; ?>>5</option>
+            </select>
         </form>
 
         <form action="ChangeStatus.php" method="post" style="display:inline;">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
-            <input type="hidden" name="status" value="playing">
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($game['status']); ?>">
+            <input type="hidden" name="rating" value="<?php echo htmlspecialchars($game['rating']); ?>">
+            <input type="hidden" name="status" value="Jogando">
             <button type="submit">▶️ Jogando</button>
         </form>
 
         <form action="ChangeStatus.php" method="post" style="display:inline;">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
-            <input type="hidden" name="status" value="completed">
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($game['status']); ?>">
+            <input type="hidden" name="rating" value="<?php echo htmlspecialchars($game['rating']); ?>">
+            <input type="hidden" name="status" value="Completo">
             <button type="submit">✅ Completo</button>
         </form>
 
         <form action="ChangeStatus.php" method="post" style="display:inline;">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
-            <input type="hidden" name="status" value="dropped">
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($game['status']); ?>">    
+            <input type="hidden" name="rating" value="<?php echo htmlspecialchars($game['rating']); ?>">
+            <input type="hidden" name="status" value="Dropado">
             <button type="submit">❌ Dropado</button>
         </form>
         <form action="DeleteGame.php" method="post" style="display:inline;">

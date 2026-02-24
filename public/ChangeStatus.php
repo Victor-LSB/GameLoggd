@@ -15,7 +15,9 @@ $game_id = $_POST['game_id'] ?? '';
 $status = $_POST['status'] ?? '';
 $rating = $_POST['rating'] ?? null;
 
-$allowedStatuses = ['backlog', 'playing', 'completed', 'dropped'];
+
+
+$allowedStatuses = ['Backlog', 'Jogando', 'Completo', 'Dropado'];
 
 if (!in_array($status, $allowedStatuses) || empty($game_id)) {
     header("Location: index.php");
