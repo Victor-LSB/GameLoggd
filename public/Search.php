@@ -25,7 +25,7 @@ if (isset($_GET['q']) && !empty(trim($_GET['q']))) {
     <title>Search Results</title>
 </head>
 <body>
-    <form action="../app/models/AddGame.php" method="get">
+    <form action="" method="get">
         <input type="text" name="q" placeholder="Buscar por jogos..." required>
         <button type="submit">Buscar</button>
     </form>
@@ -37,7 +37,7 @@ if (isset($_GET['q']) && !empty(trim($_GET['q']))) {
             <?php if (!empty($cover)): ?>
                 <img src="<?php echo htmlspecialchars($cover); ?>" alt="<?php echo htmlspecialchars($game['name']); ?>" style="width:200px;">
                 <?php endif; ?>
-            <form action="add_game.php" method="post">
+            <form action="AddGame.php" method="post">
                 <input type="hidden" name="external_id" value="<?php echo htmlspecialchars($game['id']); ?>">
                 <input type="hidden" name="title" value="<?php echo htmlspecialchars($game['name']); ?>">
                 <input type="hidden" name="cover" value="<?php echo htmlspecialchars($cover); ?>">

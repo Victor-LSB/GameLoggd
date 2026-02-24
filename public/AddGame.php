@@ -41,7 +41,7 @@ if (!$alreadyAdded) {
     $game->addGameToUser($user_id, $game_id);
 }
 
-header("Location: ../index.php");
+header("Location: /../../index.php");
 exit();
 
 
