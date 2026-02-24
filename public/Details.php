@@ -31,8 +31,18 @@ if (!$userGameInfo) {
 
 $gameDetails = $api->getGameDetails($userGameInfo['external_id']);
 
-$image = !empty($gameDetails['cover']) ? $gameDetails['cover'] : 'default_cover.jpg';
-$gameDetails['cover'] = $image;
+if (!is_array($gameDetails)) {
+    $gameDetails = [];
+}
+
+$imagePath = "";
+if (!empty($gameDetails['background_image'])) {
+    $imagePath = $gameDetails['background_image'];
+} elseif (!empty($gameDetails['cover_image'])) {
+    $imagePath = $gameDetails['cover_image'];
+}
+
+
 
 
 ?>
@@ -46,7 +56,7 @@ $gameDetails['cover'] = $image;
     <a href="index.php">Voltar</a>
 
     <h1><?php echo htmlspecialchars($gameDetails['name']); ?></h1>
-    <img src="<?php echo htmlspecialchars($gameDetails['cover']); ?>" alt="Capa do jogo" style="width:200px;"><br>
+    <img src="<?php echo htmlspecialchars($imagePath); ?>" alt="Capa do jogo" style="width:200px;"><br>
 
     <h3>Sobre o jogo:</h3>
     <div><?php echo $gameDetails['description']; ?></div>

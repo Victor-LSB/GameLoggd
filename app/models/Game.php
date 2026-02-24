@@ -98,7 +98,7 @@ class Game {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function updateReview($user_id, $game_id, $review) {
+    public function updateReview($review, $user_id, $game_id) {
         $sql = "UPDATE user_games SET review = ? WHERE user_id = ? AND game_id = ?";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([$review, $user_id, $game_id]);
