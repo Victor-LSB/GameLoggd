@@ -13,6 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $game_id = $_POST['game_id'] ?? '';
 $status = $_POST['status'] ?? '';
+$rating = $_POST['rating'] ?? null;
 
 $allowedStatuses = ['backlog', 'playing', 'completed', 'dropped'];
 
@@ -25,7 +26,7 @@ $db = new Database();
 $conn = $db->connect();
 $game = new Game($conn);
 
-$game->updateGameStatus($user_id, $game_id, $status);
+$game->updateGameStatus($user_id, $game_id, $status, $rating);
 header("Location: index.php");
 exit();
 

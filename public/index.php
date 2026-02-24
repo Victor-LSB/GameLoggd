@@ -32,11 +32,17 @@ if (count($userGames) > 0) {
         <?php endif; ?>
 
         <p>Status: <?php echo htmlspecialchars($game['status']); ?></p>
-
-        <form action="ChangeStatus.php" method="post" style="display:inline;">
+        <p>Avaliação: <?php echo isset($game['rating']) ? htmlspecialchars($game['rating']) : 'Não avaliado'; ?></p>
+        
+        <form action="ChangeStatus.php" method="post">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
-            <input type="hidden" name="status" value="backlog">
-            <button type="submit">📚 Backlog</button>
+            <select name="rating" onchange="this.form.submit()">
+                <option value="">Avaliação</option>
+                <option value="1" <?php if (isset($game['rating']) && $game['rating'] == 1) echo 'selected'; ?>>1</option>
+                <option value="2" <?php if (isset($game['rating']) && $game['rating'] == 2) echo 'selected'; ?>>2</option>
+                <option value="3" <?php if (isset($game['rating']) && $game['rating'] == 3) echo 'selected'; ?>>3</option>
+                <option value="4" <?php if (isset($game['rating']) && $game['rating'] == 4) echo 'selected'; ?>>4</option>
+                <option value="5" <?php if (isset($game['rating']) && $game['rating'] == 5) echo 'selected'; ?>>5</option>
         </form>
 
         <form action="ChangeStatus.php" method="post" style="display:inline;">

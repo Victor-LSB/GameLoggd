@@ -41,7 +41,7 @@ class Game {
     }
 
     public function getGamesByUserId($user_id) {
-        $sql = "SELECT g.*, ug.status FROM games g JOIN user_games ug ON g.id = ug.game_id WHERE ug.user_id = ?";
+        $sql = "SELECT g.*, ug.status, ug.rating FROM games g JOIN user_games ug ON g.id = ug.game_id WHERE ug.user_id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$user_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -62,10 +62,10 @@ class Game {
     }
 
 
-    public function updateGameStatus($user_id, $game_id, $status) {
-        $sql = "UPDATE user_games SET status = ? WHERE user_id = ? AND game_id = ?";
+    public function updateGameStatus($user_id, $game_id, $status, $rating) {
+        $sql = "UPDATE user_games SET status = ?, rating = ? WHERE user_id = ? AND game_id = ?";
         $stmt = $this->conn->prepare($sql);
-        return $stmt->execute([$status, $user_id, $game_id]);
+        return $stmt->execute([$status, $rating, $user_id, $game_id]);
     }
 
     public function deleteGameFromUser($user_id, $game_id) {

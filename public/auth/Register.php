@@ -18,8 +18,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     } else {
         $error = "Email ou nome de usuário já existe.";
-        echo "<script>alert('$error');</script>";
+        $_SESSION['error'] = $error;
+        header("Location: Register.php");
+        exit();
+        
     }
+}
+
+if (isset($_SESSION['error'])) {
+    echo "<p style='color:red;'>" . $_SESSION['error'] . "</p>";
+    unset($_SESSION['error']);
 }
 ?>
 
