@@ -30,25 +30,25 @@ if (count($userGames) > 0) {
 
         <p>Status: <?php echo htmlspecialchars($game['status']); ?></p>
 
-        <form action="change_status.php" method="post" style="display:inline;">
+        <form action="ChangeStatus.php" method="post" style="display:inline;">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
             <input type="hidden" name="status" value="backlog">
             <button type="submit">📚 Backlog</button>
         </form>
 
-        <form action="change_status.php" method="post" style="display:inline;">
+        <form action="ChangeStatus.php" method="post" style="display:inline;">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
             <input type="hidden" name="status" value="playing">
             <button type="submit">▶️ Jogando</button>
         </form>
 
-        <form action="change_status.php" method="post" style="display:inline;">
+        <form action="ChangeStatus.php" method="post" style="display:inline;">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
             <input type="hidden" name="status" value="completed">
             <button type="submit">✅ Completo</button>
         </form>
 
-        <form action="change_status.php" method="post" style="display:inline;">
+        <form action="ChangeStatus.php" method="post" style="display:inline;">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
             <input type="hidden" name="status" value="dropped">
             <button type="submit">❌ Dropado</button>

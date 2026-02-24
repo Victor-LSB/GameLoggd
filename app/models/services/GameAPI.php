@@ -1,7 +1,8 @@
 <?php
+require_once __DIR__ . '/../../../config/ConfigAPI.php';
 
 class GameAPI {
-    private $apiKey = '5fb48f677bbc4d0395cbbb8606b1e551';
+    private $apiKey = RAWG_API_KEY;
     private $baseUrl = 'https://api.rawg.io/api/games';
 
 

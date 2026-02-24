@@ -2,7 +2,7 @@
 
 session_start();
 
-require_once __DIR__ . '/../app/services/GameAPI.php';
+require_once __DIR__ . '/../app/models/services/GameAPI.php';
 
 $results = [];
 
@@ -13,7 +13,7 @@ if (isset($_GET['q']) && !empty(trim($_GET['q']))) {
 }
 
 
-$cover = $game['background_image'] ?? '';
+
 ?>
 
 
@@ -25,17 +25,17 @@ $cover = $game['background_image'] ?? '';
     <title>Search Results</title>
 </head>
 <body>
-    <form action="" method="get">
+    <form action="../app/models/AddGame.php" method="get">
         <input type="text" name="q" placeholder="Buscar por jogos..." required>
         <button type="submit">Buscar</button>
     </form>
 
     <?php foreach ($results as $game): ?>
-    
+    <?php $cover = $game['background_image'] ?? ''; ?>
     <h3><?php echo htmlspecialchars($game['name']); ?></h3>
         <div>
-            <?php if (!empty($game['background_image'])): ?>
-                <img src="<?php echo htmlspecialchars($game['background_image']); ?>" alt="<?php echo htmlspecialchars($game['name']); ?>" style="width:200px;">
+            <?php if (!empty($cover)): ?>
+                <img src="<?php echo htmlspecialchars($cover); ?>" alt="<?php echo htmlspecialchars($game['name']); ?>" style="width:200px;">
                 <?php endif; ?>
             <form action="add_game.php" method="post">
                 <input type="hidden" name="external_id" value="<?php echo htmlspecialchars($game['id']); ?>">
@@ -66,5 +66,6 @@ $cover = $game['background_image'] ?? '';
             </form>
         </div>
     <?php endforeach; ?>
+    <a href="index.php">Voltar para a página inicial</a>
 </body>
 </html>
