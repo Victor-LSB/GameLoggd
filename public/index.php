@@ -59,6 +59,7 @@ if (count($userGames) > 0) {
         <form action="DeleteGame.php" method="post" style="display:inline;">
             <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
             <button type="submit">🗑️ Remover</button>
+        </form>
     </div>
 <?php endforeach;
     echo "</ul>";
