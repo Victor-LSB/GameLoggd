@@ -29,7 +29,10 @@ if (!$userGameInfo) {
     exit();
 }
 
-$gameDetails = $api->getGameDetails($gameId['external_id']);
+$gameDetails = $api->getGameDetails($userGameInfo['external_id']);
+
+$image = !empty($gameDetails['cover']) ? $gameDetails['cover'] : 'default_cover.jpg';
+$gameDetails['cover'] = $image;
 
 
 ?>

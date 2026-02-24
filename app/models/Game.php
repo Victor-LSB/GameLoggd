@@ -89,7 +89,10 @@ class Game {
     }
 
     public function getUserGameInfo($user_id, $game_id) {
-        $sql = "SELECT * FROM user_games WHERE user_id = ? AND game_id = ? LIMIT 1";
+        $sql = "SELECT g.external_id, g.title, g.cover_image, ug.status, ug.rating, ug.review 
+            FROM games g 
+            JOIN user_games ug ON g.id = ug.game_id 
+            WHERE ug.user_id = ? AND g.id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$user_id, $game_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
