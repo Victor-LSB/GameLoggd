@@ -68,6 +68,12 @@ class Game {
         return $stmt->execute([$status, $user_id, $game_id]);
     }
 
+    public function deleteGameFromUser($user_id, $game_id) {
+        $sql = "DELETE FROM user_games WHERE user_id = ? AND game_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([$user_id, $game_id]);
+    }
+
 }
 
 

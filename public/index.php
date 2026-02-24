@@ -27,6 +27,9 @@ if (count($userGames) > 0) {
     foreach ($userGames as $game): ?>
     <div>
         <h3><?php echo htmlspecialchars($game['title']); ?></h3>
+        <?php if (!empty($game['cover_image'])): ?>
+            <img src="<?php echo htmlspecialchars($game['cover_image']); ?>" alt="<?php echo htmlspecialchars($game['title']); ?>" style="width:150px;">
+        <?php endif; ?>
 
         <p>Status: <?php echo htmlspecialchars($game['status']); ?></p>
 
@@ -53,6 +56,9 @@ if (count($userGames) > 0) {
             <input type="hidden" name="status" value="dropped">
             <button type="submit">❌ Dropado</button>
         </form>
+        <form action="DeleteGame.php" method="post" style="display:inline;">
+            <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
+            <button type="submit">🗑️ Remover</button>
     </div>
 <?php endforeach;
     echo "</ul>";
