@@ -1,4 +1,7 @@
 <?php
+namespace Victi\GameLoggd\Models;
+
+use PDO;
 
 class User {
     private $conn;

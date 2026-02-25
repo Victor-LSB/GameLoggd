@@ -1,4 +1,7 @@
 <?php
+namespace Victi\GameLoggd\Models;
+USE PDO;
+
 class Game {
     private $conn;
     public function __construct($db) {
