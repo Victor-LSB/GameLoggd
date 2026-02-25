@@ -32,7 +32,7 @@
     <?php if (!empty($userGames) && count($userGames) > 0): ?>
         <ul>
         <?php foreach ($userGames as $game): ?>
-        <div>
+        <div class="gameItem" id="game-<?php echo $game['id']; ?>">
             <h3>
                 <a href="index.php?action=details&id=<?php echo $game['id']; ?>">
                     <?php echo htmlspecialchars($game['title']); ?>
@@ -60,21 +60,21 @@
                 </select>
             </form>
 
-            <form action="index.php?action=change_status" method="post" style="display:inline;">
+            <form class="formStatus" action="index.php?action=change_status" method="post" style="display:inline;">
                 <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
                 <input type="hidden" name="rating" value="<?php echo htmlspecialchars($game['rating']); ?>">
                 <input type="hidden" name="status" value="Jogando">
                 <button type="submit">▶️ Jogando</button>
             </form>
 
-            <form action="index.php?action=change_status" method="post" style="display:inline;">
+            <form class="formStatus" action="index.php?action=change_status" method="post" style="display:inline;">
                 <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
                 <input type="hidden" name="rating" value="<?php echo htmlspecialchars($game['rating']); ?>">
                 <input type="hidden" name="status" value="Completo">
                 <button type="submit">✅ Completo</button>
             </form>
 
-            <form action="index.php?action=change_status" method="post" style="display:inline;">
+            <form class="formStatus" action="index.php?action=change_status" method="post" style="display:inline;">
                 <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
                 <input type="hidden" name="rating" value="<?php echo htmlspecialchars($game['rating']); ?>">
                 <input type="hidden" name="status" value="Dropado">
@@ -97,5 +97,6 @@
     <a href='index.php?action=search'>Adicionar Jogo</a><br>
     <a href='index.php?action=logout'>Sair</a>
 
+<script src="./assets/js/status.js"></script>
 </body>
 </html>

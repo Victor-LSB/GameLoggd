@@ -66,7 +66,7 @@ class AuthController {
             }
 
             if ($password !== $passwordConfirm) {
-                $error = 'As senhas não correspondem.';
+                $error = '';
                 include __DIR__ . '/../Views/auth/register.php';
                 return;
             }
