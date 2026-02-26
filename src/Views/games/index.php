@@ -44,13 +44,13 @@
             <?php endif; ?>
 
             <p class="gameStatus">Status: <?php echo htmlspecialchars($game['status']); ?></p>
-            <p>Avaliação: <?php echo isset($game['rating']) ? htmlspecialchars($game['rating']) : 'Não avaliado'; ?></p>
+            <p class="pRating">Avaliação: <?php echo isset($game['rating']) ? htmlspecialchars($game['rating']) : 'Não avaliado'; ?></p>
             
-            <form action="index.php?action=change_status" method="post" style="display:inline;">
+            <form class="ratingForm" method="post" style="display:inline;">
                 <input type="hidden" name="game_id" value="<?php echo $game['id']; ?>">
                 <input type="hidden" name="status" value="<?php echo htmlspecialchars($game['status']); ?>">
                 
-                <select name="rating" onchange="this.form.submit()">
+                <select name="rating">
                     <option value="">Avaliação</option>
                     <option value="1" <?php if (isset($game['rating']) && $game['rating'] == 1) echo 'selected'; ?>>1</option>
                     <option value="2" <?php if (isset($game['rating']) && $game['rating'] == 2) echo 'selected'; ?>>2</option>
