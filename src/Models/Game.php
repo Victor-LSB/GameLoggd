@@ -37,7 +37,7 @@ class Game {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function addGameToUser($user_id, $game_id, $status = 'backlog', $rating = null) {
+    public function addGameToUser($user_id, $game_id, $status = 'Backlog', $rating = null) {
         $sql = "INSERT INTO user_games (user_id, game_id, status, rating) VALUES (?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([$user_id, $game_id, $status, $rating]);

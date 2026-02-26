@@ -10,15 +10,15 @@
     <h1>Bem-vindo, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h1>
     <h2>Meus Jogos</h2>
 
-    <form action="index.php" method="GET">
+    <form id="searchForm" action="index.php" method="GET">
         <input type="hidden" name="action" value="home">
-        <input type="text" name="search" placeholder="Pesquisar jogos..." value="<?php echo htmlspecialchars($search_query ?? ''); ?>">
+        <input id="searchInput" type="text" name="search" placeholder="Pesquisar jogos..." value="<?php echo htmlspecialchars($search_query ?? ''); ?>">
         <button type="submit">Pesquisar</button>
     </form>
 
     <form action="index.php" method="GET">
         <input type="hidden" name="action" value="home">
-        <select name="filter_status" onchange="this.form.submit()">
+        <select name="filter_status" class="filterStatus">
             <option value="">Filtrar por status</option>
             <option value="Backlog" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Backlog') echo 'selected'; ?>>Backlog</option>
             <option value="Jogando" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Jogando') echo 'selected'; ?>>Jogando</option>
