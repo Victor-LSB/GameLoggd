@@ -1,5 +1,6 @@
 const formStatus = document.querySelectorAll('.formStatus');
 
+
 formStatus.forEach(function(form) {
     form.addEventListener('submit', function(event){
         event.preventDefault();
@@ -13,9 +14,12 @@ formStatus.forEach(function(form) {
             method: 'POST',
             body: dados
             })
-            .then(function(resposta) {
-                alert('Status atualizado com sucesso!');
-                window.location.reload();
+        .then(function(resposta) {
+            alert('Status atualizado com sucesso!');
+            const cardGame = document.getElementById(`game-${gameId}`);
+            const pStatus = cardGame.querySelector('.gameStatus');
+            pStatus.textContent = 'Status: ' + newStatus;
         })
+            
     })
 })

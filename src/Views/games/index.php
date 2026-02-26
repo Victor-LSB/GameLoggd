@@ -43,7 +43,7 @@
                 <img src="<?php echo htmlspecialchars($game['cover_image']); ?>" alt="<?php echo htmlspecialchars($game['title']); ?>" style="width:150px;">
             <?php endif; ?>
 
-            <p>Status: <?php echo htmlspecialchars($game['status']); ?></p>
+            <p class="gameStatus">Status: <?php echo htmlspecialchars($game['status']); ?></p>
             <p>Avaliação: <?php echo isset($game['rating']) ? htmlspecialchars($game['rating']) : 'Não avaliado'; ?></p>
             
             <form action="index.php?action=change_status" method="post" style="display:inline;">
