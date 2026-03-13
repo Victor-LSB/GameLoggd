@@ -45,7 +45,7 @@ ratingForm.forEach(function(form) {
         fetch('index.php?action=change_rating', {
             method: 'POST',
             body: dados
-            })
+            }) 
         .then(function(resposta) {
             alert('Avaliação atualizada com sucesso!');
             const cardGame = document.getElementById(`game-${gameId}`);

@@ -158,7 +158,7 @@ class GameController {
             exit();
         }
 
-        // 2. Garante que os dados vieram do formulário
+       
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header("Location: index.php?action=home");
             exit();
