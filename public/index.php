@@ -35,6 +35,10 @@ switch ($action) {
         $controller = new GameController();
         $controller->changeStatus();
         break;
+    case 'change_rating': 
+        $controller = new GameController();
+        $controller->changeStatus();
+        break;
 
     // --- ROTAS DE JOGOS (Páginas visuais) ---
     case 'search':
