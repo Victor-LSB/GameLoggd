@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GameLoggd - Meus Jogos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
@@ -97,6 +98,7 @@
     <a href='index.php?action=search'>Adicionar Jogo</a><br>
     <a href='index.php?action=logout'>Sair</a>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="./assets/js/status.js"></script>
 </body>
 </html>
