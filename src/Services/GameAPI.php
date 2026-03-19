@@ -58,35 +58,47 @@ class GameAPI {
     $response = curl_exec($ch);
     curl_close($ch);
 
-    // IMPORTANTE: Decodificar para array associativo
+   
     return json_decode($response, true);
     }
 
     public function translateHTML($htmlText) {
-    if (empty($htmlText)) return $htmlText;
+        if (empty($htmlText)) return $htmlText;
 
+        $authKey = trim($_ENV['DEEPL_API_KEY']); 
+        
+        $isFree = str_ends_with($authKey, ':fx');
+        $url = $isFree ? 'https://api-free.deepl.com/v2/translate' : 'https://api.deepl.com/v2/translate';
 
-    $authKey = $_ENV['DEEPL_API_KEY'];
-    $url = 'https://api-free.deepl.com/v2/translate';
+        $data = http_build_query([
+            'text' => $htmlText,
+            'target_lang' => 'PT-BR',
+            'tag_handling' => 'html'
+        ]);
 
-    $data = http_build_query([
-        'auth_key' => $authKey,
-        'text' => $htmlText,
-        'target_lang' => 'PT-BR',
-        'tag_handling' => 'html'
-    ]);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: DeepL-Auth-Key ' . $authKey,
+            'Content-Type: application/x-www-form-urlencoded'
+        ]);
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $response = curl_exec($ch);
+        if (curl_errno($ch)) {
+            error_log('Erro cURL (DeepL): ' . curl_error($ch));
+            curl_close($ch);
+            return $htmlText;
+        }
+        
+        curl_close($ch);
 
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    $result = json_decode($response, true);
-    
-    return $result['translations'][0]['text'] ?? $htmlText;
+        $result = json_decode($response, true);
+        return $result['translations'][0]['text'] ?? $htmlText;
     }
 }
 

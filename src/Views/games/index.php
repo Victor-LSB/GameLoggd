@@ -31,7 +31,7 @@
         <div class="bg-zinc-900 p-5 rounded-sm border-2 border-zinc-800 mb-8 flex flex-col md:flex-row gap-4 items-center shadow-lg">
             <form id="searchForm" action="index.php" method="GET" class="flex-1 w-full flex gap-2">
                 <input type="hidden" name="action" value="home">
-                <input id="searchInput" type="text" name="search" placeholder="Buscar na biblioteca..." value="<?php echo htmlspecialchars($search_query ?? ''); ?>" 
+                <input id="searchInput" type="text" name="search" placeholder="Buscar na biblioteca..."  autocomplete="off" value="<?php echo htmlspecialchars($search_query ?? ''); ?>" 
                     class="flex-1 bg-zinc-950 border-2 border-zinc-800 text-white rounded-sm px-4 py-3 focus:outline-none focus:border-violet-500 font-medium placeholder-zinc-600">
                 <button type="submit" class="bg-zinc-200 hover:bg-white text-zinc-900 px-6 py-3 rounded-sm font-bold uppercase tracking-wide transition-colors">Buscar</button>
             </form>

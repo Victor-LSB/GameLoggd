@@ -41,6 +41,10 @@ switch ($action) {
         $controller = new GameController();
         $controller->search();
         break;
+    case 'ajax_search':
+        $controller = new GameController();
+        $controller->ajaxSearch();
+        break;
     case 'details':
         $controller = new GameController();
         $controller->details();

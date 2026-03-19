@@ -53,6 +53,23 @@ class GameController {
         include __DIR__ . '/../Views/games/search.php'; 
     }
 
+    public function ajaxSearch() {
+        $this->checkAuth();
+        
+        header('Content-Type: application/json'); 
+
+        $query = $_GET['q'] ?? '';
+        
+        if (!empty(trim($query))) {
+            $data = $this->api->searchGames($query);
+            echo json_encode(['results' => $data['results'] ?? []]);
+        } else {
+            echo json_encode(['results' => []]);
+        }
+        
+        exit(); 
+    }
+
     public function details() {
         $this->checkAuth();
 
@@ -73,7 +90,7 @@ class GameController {
         if (!is_array($gameDetails)) {
             $gameDetails = [];
         }
-        
+
         if (isset($gameDetails['description']) && !empty($gameDetails['description'])) {
             $gameDetails['description'] = $this->api->translateHTML($gameDetails['description']);
         }
