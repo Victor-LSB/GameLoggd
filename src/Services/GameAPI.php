@@ -60,7 +60,34 @@ class GameAPI {
 
     // IMPORTANTE: Decodificar para array associativo
     return json_decode($response, true);
-}
+    }
+
+    public function translateHTML($htmlText) {
+    if (empty($htmlText)) return $htmlText;
+
+
+    $authKey = $_ENV['DEEPL_API_KEY'];
+    $url = 'https://api-free.deepl.com/v2/translate';
+
+    $data = http_build_query([
+        'auth_key' => $authKey,
+        'text' => $htmlText,
+        'target_lang' => 'PT-BR',
+        'tag_handling' => 'html'
+    ]);
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $result = json_decode($response, true);
+    
+    return $result['translations'][0]['text'] ?? $htmlText;
+    }
 }
 
 ?>

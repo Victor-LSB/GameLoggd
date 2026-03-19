@@ -73,6 +73,10 @@ class GameController {
         if (!is_array($gameDetails)) {
             $gameDetails = [];
         }
+        
+        if (isset($gameDetails['description']) && !empty($gameDetails['description'])) {
+            $gameDetails['description'] = $this->api->translateHTML($gameDetails['description']);
+        }
 
         $imagePath = $gameDetails['background_image'] ?? $gameDetails['cover_image'] ?? '';
 

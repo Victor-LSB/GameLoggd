@@ -4,37 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar - GameLoggd</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-zinc-950 text-zinc-200 font-sans min-h-screen flex flex-col selection:bg-violet-600 selection:text-white">
+
+    <!-- Top Header Minimalista -->
+    <header class="bg-zinc-900 border-b-4 border-violet-600 shadow-md px-6 py-5">
+        <div class="max-w-7xl mx-auto flex justify-center">
+            <h1 class="text-3xl font-black text-white tracking-tighter uppercase">GameLoggd</h1>
+        </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center px-6 py-12">
+        <div class="w-full max-w-lg bg-zinc-900 p-8 sm:p-10 rounded-sm border-2 border-zinc-800 shadow-2xl">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight mb-8 text-center border-b-2 border-zinc-800 pb-4">Criar Conta</h2>
+            
+            <?php if (isset($error)): ?>
+                <div class="bg-red-950 border border-red-800 text-red-400 px-4 py-3 rounded-sm mb-6 font-medium text-sm text-center">
+                    <?php echo htmlspecialchars($error); ?>
+                </div>
+            <?php endif; ?>
+            <?php if (isset($success)): ?>
+                <div class="bg-emerald-950 border border-emerald-800 text-emerald-400 px-4 py-3 rounded-sm mb-6 font-medium text-sm text-center">
+                    <?php echo htmlspecialchars($success); ?>
+                    <?php header("refresh:2;url=index.php?action=login");?>
+                </div>
+            <?php endif; ?>
+
+            <form action="index.php?action=register" method="post" id="registerForm" class="space-y-5">
+                <div>
+                    <label for="username" class="block text-xs font-black text-zinc-500 uppercase tracking-widest mb-2">Nome de Usuário</label>
+                    <input type="text" id="username" name="username" required
+                        class="w-full bg-zinc-950 border-2 border-zinc-800 text-white rounded-sm px-4 py-3 focus:outline-none focus:border-violet-500 transition-colors font-medium">
+                    <p id="messageErrorUsername" class="text-red-500 text-xs font-bold mt-1.5 empty:hidden"></p>
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-xs font-black text-zinc-500 uppercase tracking-widest mb-2">Email</label>
+                    <input type="email" id="email" name="email" required
+                        class="w-full bg-zinc-950 border-2 border-zinc-800 text-white rounded-sm px-4 py-3 focus:outline-none focus:border-violet-500 transition-colors font-medium">
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label for="password" class="block text-xs font-black text-zinc-500 uppercase tracking-widest mb-2">Senha</label>
+                        <input type="password" id="password" name="password" required
+                            class="w-full bg-zinc-950 border-2 border-zinc-800 text-white rounded-sm px-4 py-3 focus:outline-none focus:border-violet-500 transition-colors font-medium">
+                        <p id="messageErrorPassword" class="text-red-500 text-xs font-bold mt-1.5 empty:hidden"></p>
+                    </div>
+
+                    <div>
+                        <label for="password_confirm" class="block text-xs font-black text-zinc-500 uppercase tracking-widest mb-2">Confirmar Senha</label>
+                        <input type="password" id="password_confirm" name="password_confirm" required
+                            class="w-full bg-zinc-950 border-2 border-zinc-800 text-white rounded-sm px-4 py-3 focus:outline-none focus:border-violet-500 transition-colors font-medium">
+                        <p id="messageErrorConfirmPassword" class="text-red-500 text-xs font-bold mt-1.5 empty:hidden"></p>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-violet-600 hover:bg-violet-500 text-white font-black uppercase tracking-widest py-4 rounded-sm transition-colors shadow-lg mt-8">
+                    Registrar
+                </button>
+                
+                <div class="mt-6 text-center pt-6 border-t border-zinc-800">
+                    <p class="text-zinc-500 font-medium text-sm">Já tem uma conta?</p>
+                    <a href="index.php?action=login" class="inline-block mt-1 text-violet-400 hover:text-violet-300 font-bold uppercase tracking-wide transition-colors text-sm">Fazer Login</a>
+                </div>
+            </form>
+        </div>
+    </main>
     
-    <?php if (isset($error)): ?>
-        <p style='color:red;'><?php echo htmlspecialchars($error); ?></p>
-    <?php endif; ?>
-    <?php if (isset($success)): ?>
-        <p style='color:green;'><?php echo htmlspecialchars($success); ?></p>
-    <?php endif; ?>
-
-    <form action="index.php?action=register" method="post" id="registerForm">
-        <label for="username">Nome de usuário:</label>
-        <input type="text" id="username" name="username" required><br><br>
-        <p id="messageErrorUsername" style="color:red;"></p>
-
-        
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br><br>
-        
-        <label for="password">Senha:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        <p id="messageErrorPassword" style="color:red;"></p>
-
-        <label for="password_confirm">Confirmar Senha:</label>
-        <input type="password" id="password_confirm" name="password_confirm" required><br><br>
-        <p id="messageErrorConfirmPassword" style="color:red;"></p>
-
-        <button type="submit">Registrar</button>
-        
-        <p>Já tem uma conta? <a href="index.php?action=login">Faça login</a></p>
-    </form>
-<script src="./assets/js/validacaoForm.js"></script>
+    <script src="./assets/js/validacaoForm.js"></script>
 </body>
 </html>
