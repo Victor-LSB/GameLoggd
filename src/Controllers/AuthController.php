@@ -24,8 +24,8 @@ class AuthController {
         $this->startSession();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = trim($_POST['email'] ?? '');
-            $password = trim($_POST['password'] ?? '');
+            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+            $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
 
             if (empty($email) || empty($password)) {
                 $error = 'Email e senha são obrigatórios.';
@@ -54,10 +54,10 @@ class AuthController {
         $this->startSession();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = trim($_POST['username'] ?? '');
-            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL) ?? '';
-            $password = trim($_POST['password'] ?? '');
-            $passwordConfirm = trim($_POST['password_confirm'] ?? '');
+            $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+            $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+            $passwordConfirm = filter_input(INPUT_POST, 'password_confirm', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
 
             if (empty($username) || empty($email) || empty($password) || empty($passwordConfirm)) {
                 $error = 'Todos os campos são obrigatórios.';

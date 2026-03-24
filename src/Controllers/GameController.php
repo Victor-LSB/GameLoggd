@@ -37,8 +37,8 @@ class GameController {
         $this->checkAuth();
         
         $user_id = $_SESSION['user_id'];
-        $filter_status = $_GET['filter_status'] ?? '';
-        $search_query = $_GET['search'] ?? '';
+        $filter_status = filter_input(INPUT_GET, 'filter_status', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+        $search_query = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
         $userGames = $this->gameModel->getGamesByUserId($user_id, $filter_status, $search_query);
 
         include __DIR__ . '/../Views/games/index.php';
@@ -47,8 +47,9 @@ class GameController {
     public function search() {
         $this->checkAuth();
         $results = [];
-        if (isset($_GET['q']) && !empty(trim($_GET['q']))) {
-            $data = $this->api->searchGames($_GET['q']);
+        $q = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+        if (!empty(trim($q))) {
+            $data = $this->api->searchGames($q);
             $results = $data['results'] ?? [];
         }
         include __DIR__ . '/../Views/games/search.php'; 
@@ -57,7 +58,7 @@ class GameController {
     public function ajaxSearch() {
         $this->checkAuth();
         header('Content-Type: application/json'); 
-        $query = $_GET['q'] ?? '';
+        $query = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
         if (!empty(trim($query))) {
             $data = $this->api->searchGames($query);
             echo json_encode(['results' => $data['results'] ?? []]);
@@ -69,7 +70,7 @@ class GameController {
 
     public function details() {
         $this->checkAuth();
-        $gameId = $_GET['id'] ?? null;
+        $gameId = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? null;
         if (!$gameId) {
             header("Location: index.php?action=home");
             exit();
@@ -110,17 +111,17 @@ class GameController {
 
     public function add() {
         $this->checkAuth();
-        $external_id = $_POST['external_id'] ?? '';
-        if (empty($external_id) || empty($_POST['title'])) {
+        $external_id = filter_input(INPUT_POST, 'external_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+        $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+        if (empty($external_id) || empty($title)) {
             header("Location: index.php?action=home");
             exit();
         }
-        $title = $_POST['title'] ?? '';
-        $platform = $_POST['platform'] ?? '';
+        $platform = filter_input(INPUT_POST, 'platform', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
         $user_id = $_SESSION['user_id'];
-        $cover = $_POST['cover'] ?? '';
-        $release_date = $_POST['release_date'] ?? '';
-        $genre = $_POST['genre'] ?? '';
+        $cover = filter_input(INPUT_POST, 'cover', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+        $release_date = filter_input(INPUT_POST, 'release_date', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+        $genre = filter_input(INPUT_POST, 'genre', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
 
         $existingGame = $this->gameModel->findGameByExternalId($external_id);
         if (!$existingGame) {
@@ -141,9 +142,9 @@ class GameController {
     public function changeStatus() {
         $this->checkAuth();
         $user_id = $_SESSION['user_id'];
-        $game_id = $_POST['game_id'] ?? '';
-        $status = $_POST['status'] ?? 'Backlog';
-        $rating = (isset($_POST['rating']) && $_POST['rating'] !== '') ? (int)$_POST['rating'] : null;
+        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+        $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? 'Backlog';
+        $rating = (filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_FULL_SPECIAL_CHARS) !== null) ? (int)filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
 
         $allowedStatuses = ['Backlog', 'Jogando', 'Completo', 'Dropado'];
         if (!in_array($status, $allowedStatuses) || empty($game_id)) {
@@ -170,8 +171,8 @@ class GameController {
     public function changeRating() {
         $this->checkAuth();
         $user_id = $_SESSION['user_id'];
-        $game_id = $_POST['game_id'] ?? '';
-        $rating = (isset($_POST['rating']) && $_POST['rating'] !== '') ? (int)$_POST['rating'] : null;
+        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+        $rating = (filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_FULL_SPECIAL_CHARS) !== null) ? (int)filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
 
         if (empty($game_id)) {
             header("Location: index.php?action=home");
@@ -190,7 +191,7 @@ class GameController {
     public function delete() {
         $this->checkAuth();
         $user_id = $_SESSION['user_id'];
-        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_NUMBER_INT) ?? '';
+        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
         if (empty($game_id)) {
             header("Location: index.php?action=home");
             exit();
@@ -209,8 +210,8 @@ class GameController {
             exit();
         }
 
-        $game_id = $_POST['game_id'] ?? '';
-        $review = $_POST['review'] ?? '';
+        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+        $review = filter_input(INPUT_POST, 'review', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
         $user_id = $_SESSION['user_id'];
 
         if ($game_id) {

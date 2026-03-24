@@ -21,15 +21,15 @@
             <form action="index.php" method="GET" class="flex flex-col sm:flex-row gap-3">
                 <input type="hidden" name="action" value="search">
                 <div class="flex-1">
-                    <input type="text" id="liveSearchInput" name="q" autocomplete="off" placeholder="Ex: The Witcher 3, Elden Ring, Minecraft..." value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>" required
+                    <input type="text" id="liveSearchInput" name="q" autocomplete="off" placeholder="Ex: The Witcher 3, Elden Ring, Minecraft..." value="<?php echo htmlspecialchars($q); ?>" required
                            class="w-full bg-zinc-950 border-2 border-zinc-800 text-white rounded-sm px-5 py-4 text-lg focus:outline-none focus:border-violet-500 font-medium placeholder-zinc-600">
                 </div>
                 <button type="submit" class="bg-zinc-200 hover:bg-white text-zinc-900 px-8 py-4 rounded-sm font-black text-lg uppercase tracking-wide transition-colors shadow-lg">Pesquisar</button>
             </form>
         </div>
 
-        <h2 id="searchTitle" class="text-xl font-black text-white uppercase tracking-tight border-l-4 border-violet-500 pl-3 mb-6" style="display: <?php echo !empty($_GET['q']) ? 'block' : 'none'; ?>;">
-            <?php if (!empty($_GET['q'])) echo 'Resultados para "<span class="text-violet-400">' . htmlspecialchars($_GET['q']) . '</span>"'; ?>
+        <h2 id="searchTitle" class="text-xl font-black text-white uppercase tracking-tight border-l-4 border-violet-500 pl-3 mb-6" style="display: <?php echo !empty($q) ? 'block' : 'none'; ?>;">
+            <?php if (!empty($q)) echo 'Resultados para "<span class="text-violet-400">' . htmlspecialchars($q) . '</span>"'; ?>
         </h2>
         
         <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -84,11 +84,11 @@
                     </div>
                 <?php endforeach; ?>
 
-            <?php elseif (isset($_GET['q'])): ?>
+            <?php elseif (!empty($q)): ?>
                 <div class="col-span-full bg-zinc-900 border-2 border-zinc-800 rounded-sm p-12 text-center shadow-xl mt-4">
                     <div class="text-zinc-700 mb-4 text-5xl">📡</div>
                     <h3 class="text-xl font-black text-white uppercase tracking-tight mb-2">Sinal Perdido</h3>
-                    <p class="text-zinc-400 font-medium">Nenhum jogo encontrado para "<strong><?php echo htmlspecialchars($_GET['q']); ?></strong>".</p>
+                    <p class="text-zinc-400 font-medium">Nenhum jogo encontrado para "<strong><?php echo htmlspecialchars($q); ?></strong>".</p>
                 </div>
             <?php endif; ?>
 

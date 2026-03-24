@@ -40,10 +40,10 @@
                 <input type="hidden" name="action" value="home">
                 <select name="filter_status" class="filterStatus w-full bg-zinc-950 border-2 border-zinc-800 text-white font-medium rounded-sm px-4 py-3 focus:outline-none focus:border-violet-500 cursor-pointer appearance-none">
                     <option value="">Todos os status</option>
-                    <option value="Backlog" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Backlog') echo 'selected'; ?>>Backlog</option>
-                    <option value="Jogando" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Jogando') echo 'selected'; ?>>Jogando</option>
-                    <option value="Completo" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Completo') echo 'selected'; ?>>Completo</option>
-                    <option value="Dropado" <?php if (isset($_GET['filter_status']) && $_GET['filter_status'] == 'Dropado') echo 'selected'; ?>>Dropado</option>
+                    <option value="Backlog" <?php if (!empty($filter_status) && $filter_status == 'Backlog') echo 'selected'; ?>>Backlog</option>
+                    <option value="Jogando" <?php if (!empty($filter_status) && $filter_status == 'Jogando') echo 'selected'; ?>>Jogando</option>
+                    <option value="Completo" <?php if (!empty($filter_status) && $filter_status == 'Completo') echo 'selected'; ?>>Completo</option>
+                    <option value="Dropado" <?php if (!empty($filter_status) && $filter_status == 'Dropado') echo 'selected'; ?>>Dropado</option>
                 </select>
             </form>
         </div>
