@@ -1,10 +1,13 @@
 <?php
 namespace Victi\GameLoggd\Services;
-require_once __DIR__ . '/../../config/ConfigAPI.php';
 
 class GameAPI {
-    private $apiKey = RAWG_API_KEY;
+    private $apiKey;
     private $baseUrl = 'https://api.rawg.io/api/games';
+
+    public function __construct() {
+        $this->apiKey = $_ENV['RAWG_API_KEY'] ?? '';
+    }
 
     public function searchGames($query) {
         

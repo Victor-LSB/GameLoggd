@@ -1,6 +1,6 @@
 <?php
 namespace Victi\GameLoggd\Controllers;
-
+use Victi\GameLoggd\Database\Database;
 use Victi\GameLoggd\Models\User;
 
 class AuthController {
@@ -8,8 +8,7 @@ class AuthController {
     private $userModel;
 
     public function __construct() {
-        require_once __DIR__ . '/../../config/Database.php';
-        $database = new \Database();
+        $database = new Database();
         $this->db = $database->connect();
         $this->userModel = new User($this->db);
     }

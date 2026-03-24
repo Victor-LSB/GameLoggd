@@ -1,4 +1,8 @@
 <?php
+namespace Victi\GameLoggd\Database;
+use PDO;
+use PDOException;
+
 class Database {
     private $host = "127.0.0.1";
     private $dbname = "gameloggd";

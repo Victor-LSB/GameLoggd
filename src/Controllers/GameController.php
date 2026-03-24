@@ -1,5 +1,6 @@
 <?php
 namespace Victi\GameLoggd\Controllers;
+use Victi\GameLoggd\Database\Database;
 
 use Victi\GameLoggd\Models\Game;
 use Victi\GameLoggd\Services\GameAPI;
@@ -10,8 +11,8 @@ class GameController {
     private $api;
 
     public function __construct() {
-        require_once __DIR__ . '/../../config/Database.php';
-        $database = new \Database();
+        
+        $database = new Database();
         $this->db = $database->connect();
         
         // Proteção: Se a BD falhar, não tentamos criar o Model para evitar Fatal Error
@@ -179,7 +180,7 @@ class GameController {
             exit();
         }
 
-        $this->gameModel->updateGameStatus($user_id, $game_id, $rating);
+        $this->gameModel->updateGameStatus($user_id, $game_id, null, $rating);
 
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
             header('Content-Type: application/json');
