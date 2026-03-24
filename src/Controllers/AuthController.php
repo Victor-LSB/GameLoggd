@@ -55,7 +55,7 @@ class AuthController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = trim($_POST['username'] ?? '');
-            $email = trim($_POST['email'] ?? '');
+            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL) ?? '';
             $password = trim($_POST['password'] ?? '');
             $passwordConfirm = trim($_POST['password_confirm'] ?? '');
 

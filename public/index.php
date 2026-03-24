@@ -8,60 +8,28 @@ use Victi\GameLoggd\Controllers\GameController;
 $action = $_GET['action'] ?? 'home';
 
 
-switch ($action) {
-    // --- ROTAS DE AUTENTICAÇÃO ---
-    case 'login':
-        $controller = new AuthController();
-        $controller->login();
-        break;
-    case 'register':
-        $controller = new AuthController();
-        $controller->register();
-        break;
-    case 'logout':
-        $controller = new AuthController();
-        $controller->logout();
-        break;
-    // --- ROTAS DE JOGOS (Ações) ---
-    case 'add_game':
-        $controller = new GameController();
-        $controller->add();
-        break;
-    case 'delete_game':
-        $controller = new GameController();
-        $controller->delete();
-        break;
-    case 'change_status':
-        $controller = new GameController();
-        $controller->changeStatus();
-        break;
-    case 'change_rating': 
-        $controller = new GameController();
-        $controller->changeStatus();
-        break;
+$routes = [
+    'login'         => [AuthController::class, 'login'],
+    'register'      => [AuthController::class, 'register'],
+    'logout'        => [AuthController::class, 'logout'],
+    'add_game'      => [GameController::class, 'add'],
+    'delete_game'   => [GameController::class, 'delete'],
+    'change_status' => [GameController::class, 'changeStatus'],
+    'change_rating' => [GameController::class, 'changeRating'],
+    'search'        => [GameController::class, 'search'],
+    'ajax_search'   => [GameController::class, 'ajaxSearch'],
+    'details'       => [GameController::class, 'details'],
+    'save_review'   => [GameController::class, 'saveReview'],
+    'home'          => [GameController::class, 'index']
+];
 
-    // --- ROTAS DE JOGOS (Páginas visuais) ---
-    case 'search':
-        $controller = new GameController();
-        $controller->search();
-        break;
-    case 'ajax_search':
-        $controller = new GameController();
-        $controller->ajaxSearch();
-        break;
-    case 'details':
-        $controller = new GameController();
-        $controller->details();
-        break;
-    case 'save_review':
-        $controller = new GameController();
-        $controller->saveReview(); 
-        break;
+if (array_key_exists($action, $routes)) {
+    $controllerName = $routes[$action][0];
+    $methodName = $routes[$action][1];
 
-    // --- PÁGINA INICIAL ---
-    case 'home':
-    default:
-        $controller = new GameController();
-        $controller->index();
-        break;
+    $controller = new $controllerName();
+    $controller->$methodName();
+} else {
+    http_response_code(404);
+    echo "404 - Página não encontrada.";
 }

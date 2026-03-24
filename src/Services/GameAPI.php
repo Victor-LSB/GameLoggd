@@ -1,4 +1,5 @@
 <?php
+namespace Victi\GameLoggd\Services;
 require_once __DIR__ . '/../../config/ConfigAPI.php';
 
 class GameAPI {

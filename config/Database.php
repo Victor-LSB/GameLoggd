@@ -15,8 +15,8 @@ class Database {
             }
             return $this->conn;
         } catch(PDOException $e) {
-            echo "Connection failed: " . $e->getMessage();
-            return null;
+            error_log("Erro de conexão com o banco de dados: " . $e->getMessage());
+            throw new \Exception("Não foi possível conectar ao banco de dados.");
         }
     }
 }

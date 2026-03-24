@@ -2,7 +2,7 @@
 namespace Victi\GameLoggd\Controllers;
 
 use Victi\GameLoggd\Models\Game;
-require_once __DIR__ . '/../Services/GameAPI.php'; 
+use Victi\GameLoggd\Services\GameAPI;
 
 class GameController {
     private $db;
@@ -19,7 +19,7 @@ class GameController {
             $this->gameModel = new Game($this->db);
         }
         
-        $this->api = new \GameAPI();
+        $this->api = new GameAPI();
     }
 
     private function checkAuth() {
@@ -167,10 +167,30 @@ class GameController {
         exit();
     }
 
-    public function delete() {
+    public function changeRating() {
         $this->checkAuth();
         $user_id = $_SESSION['user_id'];
         $game_id = $_POST['game_id'] ?? '';
+        $rating = (isset($_POST['rating']) && $_POST['rating'] !== '') ? (int)$_POST['rating'] : null;
+
+        if (empty($game_id)) {
+            header("Location: index.php?action=home");
+            exit();
+        }
+
+        $this->gameModel->updateGameStatus($user_id, $game_id, $rating);
+
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            exit();
+        }
+    }
+
+    public function delete() {
+        $this->checkAuth();
+        $user_id = $_SESSION['user_id'];
+        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_NUMBER_INT) ?? '';
         if (empty($game_id)) {
             header("Location: index.php?action=home");
             exit();
