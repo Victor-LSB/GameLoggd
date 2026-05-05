@@ -1,8 +1,9 @@
 <?php
 namespace Victi\GameLoggd\Controllers;
-use Victi\GameLoggd\Database\Database;
 
+use Victi\GameLoggd\Database\Database;
 use Victi\GameLoggd\Models\Game;
+use Victi\GameLoggd\Models\User;
 use Victi\GameLoggd\Services\GameAPI;
 
 class GameController {
@@ -11,214 +12,250 @@ class GameController {
     private $api;
 
     public function __construct() {
-        
         $database = new Database();
         $this->db = $database->connect();
         
-        // Proteção: Se a BD falhar, não tentamos criar o Model para evitar Fatal Error
         if ($this->db) {
             $this->gameModel = new Game($this->db);
+            $this->api = new GameAPI();
+        } else {
+            die("Erro na conexão com o banco de dados.");
         }
-        
-        $this->api = new GameAPI();
     }
 
-    private function checkAuth() {
+    private function startSession() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
-        }
-        
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: index.php?action=login");
-            exit();
         }
     }
 
     public function index() {
-        $this->checkAuth();
-        
-        $user_id = $_SESSION['user_id'];
-        $filter_status = filter_input(INPUT_GET, 'filter_status', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $search_query = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $userGames = $this->gameModel->getGamesByUserId($user_id, $filter_status, $search_query);
+        $this->startSession();
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
+            exit();
+        }
 
+        $user_id = $_SESSION['user_id'];
+        $search_query = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $filter_status = filter_input(INPUT_GET, 'filter_status', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+        $userGames = $this->gameModel->getGamesByUserId($user_id, $filter_status, $search_query);
         include __DIR__ . '/../Views/games/index.php';
     }
 
     public function search() {
-        $this->checkAuth();
-        $results = [];
-        $q = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        if (!empty(trim($q))) {
-            $data = $this->api->searchGames($q);
-            $results = $data['results'] ?? [];
+        $this->startSession();
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
+            exit();
         }
-        include __DIR__ . '/../Views/games/search.php'; 
+
+        $query = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $searchResults = [];
+
+        if ($query) {
+            $searchResults = $this->api->searchGames($query);
+        }
+
+        include __DIR__ . '/../Views/games/search.php';
     }
 
     public function ajaxSearch() {
-        $this->checkAuth();
-        header('Content-Type: application/json'); 
-        $query = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        if (!empty(trim($query))) {
-            $data = $this->api->searchGames($query);
-            echo json_encode(['results' => $data['results'] ?? []]);
-        } else {
-            echo json_encode(['results' => []]);
+        $this->startSession();
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Não autorizado']);
+            exit();
         }
-        exit(); 
+
+        $query = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        
+        if (empty($query)) {
+            echo json_encode([]);
+            exit();
+        }
+
+        $results = $this->api->searchGames($query);
+        
+        header('Content-Type: application/json');
+        echo json_encode($results);
+        exit();
     }
 
     public function details() {
-        $this->checkAuth();
-        $gameId = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? null;
-        if (!$gameId) {
+        $this->startSession();
+        
+        $game_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+        $username_profile = $_GET['u'] ?? null; 
+
+        if (!$game_id) {
             header("Location: index.php?action=home");
             exit();
         }
 
-        $userGameInfo = $this->gameModel->getUserGameInfo($_SESSION['user_id'], $gameId);
-        if (!$userGameInfo) {
-            header("Location: index.php?action=home");
+        // AUTO-REDIRECIONAMENTO: Se não houver ?u= na URL, força a URL a ter o nome do usuário logado
+        if (!$username_profile && isset($_SESSION['username'])) {
+            header("Location: index.php?action=details&id=" . $game_id . "&u=" . urlencode($_SESSION['username']));
             exit();
         }
 
-        // Lógica de cache da descrição para performance
-        if (!empty($userGameInfo['description'])) {
-            $gameDetails = [
-                'name' => $userGameInfo['title'],
-                'description' => $userGameInfo['description'],
-                'background_image' => $userGameInfo['cover_image']
-            ];
-            $imagePath = $userGameInfo['cover_image'];
-        } else {
-            $gameDetails = $this->api->getGameDetails($userGameInfo['external_id']);
-            if (!is_array($gameDetails)) { $gameDetails = []; }
+        // Por padrão, o alvo é o usuário logado
+        $target_user_id = $_SESSION['user_id'] ?? null;
+        $isOwner = true; 
 
-            if (isset($gameDetails['description']) && !empty($gameDetails['description'])) {
-                $translatedText = $this->api->translateHTML($gameDetails['description']);
-                $gameDetails['description'] = $translatedText;
+        if ($username_profile) {
+            $userModel = new User($this->db);
+            $targetUser = $userModel->getUserByUsername($username_profile);
+            
+            if ($targetUser) {
+                $target_user_id = $targetUser['id'];
                 
-                // Só tentamos atualizar se o método existir no model
-                if (method_exists($this->gameModel, 'updateGameDescription')) {
-                    $this->gameModel->updateGameDescription($gameId, $translatedText);
+                // Se não estiver logado OU o id logado for diferente do dono do perfil, é visitante
+                if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $target_user_id) {
+                    $isOwner = false;
                 }
             }
-            $imagePath = $gameDetails['background_image'] ?? $gameDetails['cover_image'] ?? '';
         }
 
-        include __DIR__ . '/../Views/games/details.php'; 
+        // Se não encontrou alvo (ex: não logado e não passou usuário na URL), manda pro login
+        if (!$target_user_id) {
+            header("Location: index.php?action=login");
+            exit();
+        }
+
+        $game = $this->gameModel->getUserGameInfo($target_user_id, $game_id);
+
+        include __DIR__ . '/../Views/games/details.php';
     }
 
     public function add() {
-        $this->checkAuth();
-        $external_id = filter_input(INPUT_POST, 'external_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        if (empty($external_id) || empty($title)) {
-            header("Location: index.php?action=home");
+        $this->startSession();
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
             exit();
         }
-        $platform = filter_input(INPUT_POST, 'platform', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $user_id = $_SESSION['user_id'];
-        $cover = filter_input(INPUT_POST, 'cover', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $release_date = filter_input(INPUT_POST, 'release_date', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $genre = filter_input(INPUT_POST, 'genre', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
 
-        $existingGame = $this->gameModel->findGameByExternalId($external_id);
-        if (!$existingGame) {
-            $this->gameModel->addGame($external_id, $title, $platform, $genre, $release_date, $cover);
-            $game_id = $this->db->lastInsertId();
-        } else {
-            $game_id = $existingGame['id'];
-        }
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $external_id = filter_input(INPUT_POST, 'external_id', FILTER_SANITIZE_NUMBER_INT);
+            $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $platform = filter_input(INPUT_POST, 'platform', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? 'Desconhecida';
+            $genre = filter_input(INPUT_POST, 'genre', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? 'Desconhecido';
+            $release_date = filter_input(INPUT_POST, 'release_date', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $cover_image = filter_input(INPUT_POST, 'cover_image', FILTER_SANITIZE_URL);
 
-        $alreadyAdded = $this->gameModel->checkUserGame($user_id, $game_id);
-        if (!$alreadyAdded) {
-            $this->gameModel->addGameToUser($user_id, $game_id);
+            if ($external_id && $title) {
+                $existingGame = $this->gameModel->findGameByExternalId($external_id);
+                
+                if ($existingGame) {
+                    $game_id = $existingGame['id'];
+                } else {
+                    $gameDetails = $this->api->getGameDetails($external_id);
+                    $description = $gameDetails['description'] ?? null;
+                    
+                    $game_id = $this->gameModel->addGame($external_id, $title, $platform, $genre, $release_date, $cover_image);
+                    
+                    if ($game_id && $description) {
+                        $this->gameModel->updateGameDescription($game_id, $description);
+                    }
+                }
+
+                if ($game_id) {
+                    if ($this->gameModel->checkUserGame($_SESSION['user_id'], $game_id)) {
+                        $_SESSION['search_error'] = "Este jogo já está na sua biblioteca!";
+                    } else {
+                        if ($this->gameModel->addGameToUser($_SESSION['user_id'], $game_id)) {
+                            header("Location: index.php?action=home");
+                            exit();
+                        } else {
+                            $_SESSION['search_error'] = "Erro ao adicionar jogo à sua lista.";
+                        }
+                    }
+                } else {
+                    $_SESSION['search_error'] = "Erro ao registrar o jogo no sistema.";
+                }
+            }
         }
-        header("Location: index.php?action=home");
+        header("Location: index.php?action=search");
         exit();
     }
 
     public function changeStatus() {
-        $this->checkAuth();
-        $user_id = $_SESSION['user_id'];
-        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? 'Backlog';
-        $rating = (filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_FULL_SPECIAL_CHARS) !== null) ? (int)filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
+        $this->startSession();
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
+            exit();
+        }
 
-        $allowedStatuses = ['Backlog', 'Jogando', 'Completo', 'Dropado'];
-        if (!in_array($status, $allowedStatuses) || empty($game_id)) {
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-                echo json_encode(['success' => false, 'error' => 'Dados inválidos']);
-                exit();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_NUMBER_INT);
+            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $rating = filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_NUMBER_INT);
+
+            $rating = ($rating && $rating > 0) ? $rating : null;
+
+            if ($game_id && $status) {
+                $this->gameModel->updateGameStatus($_SESSION['user_id'], $game_id, $status, $rating);
             }
-            header("Location: index.php?action=home");
+        }
+        header("Location: index.php?action=home");
+        exit();
+    }
+    
+    public function changeRating() {
+        $this->startSession();
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
             exit();
         }
 
-        $this->gameModel->updateGameStatus($user_id, $game_id, $status, $rating);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_NUMBER_INT);
+            $rating = filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_NUMBER_INT);
+            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true]);
-            exit();
+            if ($game_id) {
+                $this->gameModel->updateGameStatus($_SESSION['user_id'], $game_id, $status, $rating);
+            }
         }
-
         header("Location: index.php?action=home");
         exit();
     }
 
-    public function changeRating() {
-        $this->checkAuth();
-        $user_id = $_SESSION['user_id'];
-        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $rating = (filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_FULL_SPECIAL_CHARS) !== null) ? (int)filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : null;
-
-        if (empty($game_id)) {
-            header("Location: index.php?action=home");
-            exit();
-        }
-
-        $this->gameModel->updateGameStatus($user_id, $game_id, null, $rating);
-
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true]);
-            exit();
-        }
-    }
-
     public function delete() {
-        $this->checkAuth();
-        $user_id = $_SESSION['user_id'];
-        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        if (empty($game_id)) {
-            header("Location: index.php?action=home");
+        $this->startSession();
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
             exit();
         }
-        $this->gameModel->deleteGameFromUser($user_id, $game_id);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_NUMBER_INT);
+            if ($game_id) {
+                $this->gameModel->deleteGameFromUser($_SESSION['user_id'], $game_id);
+            }
+        }
         header("Location: index.php?action=home");
         exit();
     }
 
     public function saveReview() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        $this->checkAuth();
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: index.php?action=home");
+        $this->startSession();
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: index.php?action=login");
             exit();
         }
 
-        $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $review = filter_input(INPUT_POST, 'review', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-        $user_id = $_SESSION['user_id'];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_NUMBER_INT);
+            $review = filter_input(INPUT_POST, 'review', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-        if ($game_id) {
-            if ($this->gameModel->updateReview($review, $user_id, $game_id)) {
-                $_SESSION['review_success'] = true; 
-                header("Location: index.php?action=details&id=" . $game_id);
+            if ($game_id) {
+                $this->gameModel->updateReview($review, $_SESSION['user_id'], $game_id);
+                $_SESSION['review_success'] = "Análise guardada com sucesso!";
+                
+                // Retorna mantendo a URL formatada perfeitamente
+                header("Location: index.php?action=details&id=" . $game_id . "&u=" . urlencode($_SESSION['username']));
                 exit();
             }
         }
