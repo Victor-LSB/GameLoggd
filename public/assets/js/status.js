@@ -28,19 +28,36 @@ formStatus.forEach(function(form) {
         fetch('index.php?action=change_status', {
             method: 'POST',
             body: dados
-            })
+        })
         .then(function(resposta) {
             Toast.fire({
                 icon: 'success',
                 title: 'Status atualizado com sucesso!'
             });
-            const cardGame = document.getElementById(`game-${gameId}`);
-            const pStatus = cardGame.querySelector('.gameStatus');
-            pStatus.textContent = 'Status: ' + newStatus;
-        })
             
-    })
-})
+            const cardGame = document.getElementById(`game-${gameId}`);
+            if(!cardGame) return;
+
+            // Atualiza visualmente
+            const pStatus = cardGame.querySelector('.gameStatus');
+            if (pStatus) {
+                pStatus.textContent = 'Status: ' + newStatus;
+            }
+
+            // CORREÇÃO: Atualiza o status oculto dentro do formulário de avaliação
+            // Assim, se o usuário avaliar o jogo DEPOIS de mudar o status,
+            // o formulário de avaliação enviará o status correto ao invés do antigo.
+            const ratingFormOfGame = cardGame.querySelector('.ratingForm');
+            if (ratingFormOfGame) {
+                const hiddenStatus = ratingFormOfGame.querySelector('input[name="status"]');
+                if (hiddenStatus) {
+                    hiddenStatus.value = newStatus;
+                }
+            }
+        });
+            
+    });
+});
 
 // Avaliação do Jogo
 ratingForm.forEach(function(form) {
@@ -55,18 +72,35 @@ ratingForm.forEach(function(form) {
         fetch('index.php?action=change_rating', {
             method: 'POST',
             body: dados
-            }) 
+        }) 
         .then(function(resposta) {
             Toast.fire({
                 icon: 'success',
                 title: 'Avaliação atualizada com sucesso!'
             });
+            
             const cardGame = document.getElementById(`game-${gameId}`);
+            if(!cardGame) return;
+
+            // Atualiza visualmente
             const pRating = cardGame.querySelector('.pRating');
-            pRating.textContent = 'Avaliação: ' + (newRating ? newRating : 'Não avaliado');
-        })
-    })
-})
+            if (pRating) {
+                pRating.textContent = 'Avaliação: ' + (newRating ? newRating : 'Não avaliado');
+            }
+
+            // CORREÇÃO: Atualiza a nota oculta dentro de TODOS os formulários de status
+            // Assim, se o usuário mudar o status DEPOIS de avaliar o jogo,
+            // não correrá o risco da nota nova ser apagada pela nota antiga.
+            const statusForms = cardGame.querySelectorAll('.formStatus');
+            statusForms.forEach(sForm => {
+                const hiddenRating = sForm.querySelector('input[name="rating"]');
+                if (hiddenRating) {
+                    hiddenRating.value = newRating;
+                }
+            });
+        });
+    });
+});
 
 // Filtro de Status
 filterStatus.addEventListener('change', function(event) {
@@ -74,14 +108,17 @@ filterStatus.addEventListener('change', function(event) {
     const selectedStatus = filterStatus.value;
 
     gameList.forEach(function(game) {
-        const status = game.querySelector('.gameStatus').textContent.replace('Status: ', '');
-        if (selectedStatus === '' || status === selectedStatus) {
-            game.style.display = 'block';
-        } else {
-            game.style.display = 'none';
+        const pStatus = game.querySelector('.gameStatus');
+        if (pStatus) {
+            const status = pStatus.textContent.replace('Status: ', '').trim();
+            if (selectedStatus === '' || status === selectedStatus) {
+                game.style.display = 'block';
+            } else {
+                game.style.display = 'none';
+            }
         }
-    })
-})
+    });
+});
 
 // Pesquisa de Jogos
 searchInput.addEventListener('input', function() {
@@ -94,6 +131,5 @@ searchInput.addEventListener('input', function() {
         } else {
             game.style.display = 'none';
         }
-    })
-})
-
+    });
+});

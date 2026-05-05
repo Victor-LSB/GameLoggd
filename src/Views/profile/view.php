@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php $profileUser = $profileUser ?? []; ?>
+    <?php $isOwner = $isOwner ?? false; ?>
     <title>Perfil de <?php echo htmlspecialchars($profileUser['display_name'] ?: $profileUser['username']); ?> - GameLoggd</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>

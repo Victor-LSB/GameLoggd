@@ -183,43 +183,74 @@ class GameController {
     public function changeStatus() {
         $this->startSession();
         if (!isset($_SESSION['user_id'])) {
-            header("Location: index.php?action=login");
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Usuário não logado']);
             exit();
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_NUMBER_INT);
             $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            $rating = filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_NUMBER_INT);
+            
+            if ($status === '') $status = null;
 
-            $rating = ($rating && $rating > 0) ? $rating : null;
+            if ($game_id) {
+                // BUSCA SEGURA: Pega os dados atuais do jogo no banco para não sobrescrever nada com vazio
+                $gameInfo = $this->gameModel->getUserGameInfo($_SESSION['user_id'], $game_id);
+                $existing_rating = $gameInfo ? $gameInfo['rating'] : null;
 
-            if ($game_id && $status) {
+                // Se não vier nota no POST (ou for vazia), mantém a nota que já estava no banco
+                $rating_post = $_POST['rating'] ?? null;
+                $rating = ($rating_post !== null && $rating_post !== '') ? $rating_post : $existing_rating;
+
+                // Atualiza o banco com o novo status e preserva a nota
                 $this->gameModel->updateGameStatus($_SESSION['user_id'], $game_id, $status, $rating);
+                
+                // Responde perfeitamente para o Javascript (fetch) em JSON
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true]);
+                exit();
             }
         }
-        header("Location: index.php?action=home");
-        exit();
     }
     
     public function changeRating() {
         $this->startSession();
         if (!isset($_SESSION['user_id'])) {
-            header("Location: index.php?action=login");
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Usuário não logado']);
             exit();
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_NUMBER_INT);
-            $rating = filter_input(INPUT_POST, 'rating', FILTER_SANITIZE_NUMBER_INT);
-            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            
+            // Pega a nota diretamente para lidar com valores vazios de forma segura
+            $rating = $_POST['rating'] ?? null;
+            if ($rating === '') $rating = null;
 
             if ($game_id) {
+                // BUSCA SEGURA: Pega o status atual do jogo no banco
+                $gameInfo = $this->gameModel->getUserGameInfo($_SESSION['user_id'], $game_id);
+                $existing_status = $gameInfo ? $gameInfo['status'] : null;
+
+                // Se não vier status no POST (ou for vazio), mantém o status que já estava no banco
+                $status_post = $_POST['status'] ?? null;
+                $status = ($status_post !== null && $status_post !== '') ? $status_post : $existing_status;
+
+                // Envia para o banco o novo rating e preserva o status atual
                 $this->gameModel->updateGameStatus($_SESSION['user_id'], $game_id, $status, $rating);
+                
+                // Responde perfeitamente para o Javascript (fetch) em JSON
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true]);
+                exit();
+            } else {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'ID inválido']);
+                exit();
             }
         }
-        header("Location: index.php?action=home");
-        exit();
     }
 
     public function delete() {
@@ -239,7 +270,7 @@ class GameController {
         exit();
     }
 
-    public function saveReview() {
+     public function saveReview() {
         $this->startSession();
         if (!isset($_SESSION['user_id'])) {
             header("Location: index.php?action=login");
@@ -248,7 +279,7 @@ class GameController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $game_id = filter_input(INPUT_POST, 'game_id', FILTER_SANITIZE_NUMBER_INT);
-            $review = filter_input(INPUT_POST, 'review', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $review = $_POST['review'] ?? '';
 
             if ($game_id) {
                 $this->gameModel->updateReview($review, $_SESSION['user_id'], $game_id);

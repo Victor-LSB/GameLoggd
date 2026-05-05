@@ -21,7 +21,7 @@
             <form action="index.php" method="GET" class="flex flex-col sm:flex-row gap-3">
                 <input type="hidden" name="action" value="search">
                 <div class="flex-1">
-                    <input type="text" id="liveSearchInput" name="q" autocomplete="off" placeholder="Ex: The Witcher 3, Elden Ring, Minecraft..." value="<?php echo htmlspecialchars($q); ?>" required
+                    <input type="text" id="liveSearchInput" name="q" autocomplete="off" placeholder="Ex: The Witcher 3, Elden Ring, Minecraft..." value="<?php echo htmlspecialchars($q ?? '', ENT_QUOTES, 'UTF-8'); ?>" required
                            class="w-full bg-zinc-950 border-2 border-zinc-800 text-white rounded-sm px-5 py-4 text-lg focus:outline-none focus:border-violet-500 font-medium placeholder-zinc-600">
                 </div>
                 <button type="submit" class="bg-zinc-200 hover:bg-white text-zinc-900 px-8 py-4 rounded-sm font-black text-lg uppercase tracking-wide transition-colors shadow-lg">Pesquisar</button>
